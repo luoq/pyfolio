@@ -453,7 +453,8 @@ def create_returns_tear_sheet(returns, positions=None,
                               bootstrap=False,
                               turnover_denom='AGB',
                               header_rows=None,
-                              return_fig=False):
+                              return_fig=False,
+                              diable_fama_french=False):
     """
     Generate a number of plots for analyzing a strategy's returns.
 
@@ -526,6 +527,9 @@ def create_returns_tear_sheet(returns, positions=None,
     if bootstrap:
         vertical_sections += 1
 
+    if diable_fama_french:
+        vertical_sections -= 1
+
     fig = plt.figure(figsize=(14, vertical_sections * 6))
     gs = gridspec.GridSpec(vertical_sections, 3, wspace=0.5, hspace=0.5)
     ax_rolling_returns = plt.subplot(gs[:2, :])
@@ -545,8 +549,9 @@ def create_returns_tear_sheet(returns, positions=None,
     ax_rolling_volatility = plt.subplot(gs[i, :], sharex=ax_rolling_returns)
     i += 1
     ax_rolling_sharpe = plt.subplot(gs[i, :], sharex=ax_rolling_returns)
-    i += 1
-    ax_rolling_risk = plt.subplot(gs[i, :], sharex=ax_rolling_returns)
+    if not diable_fama_french:
+        i += 1
+        ax_rolling_risk = plt.subplot(gs[i, :], sharex=ax_rolling_returns)
     i += 1
     ax_drawdown = plt.subplot(gs[i, :], sharex=ax_rolling_returns)
     i += 1
@@ -606,8 +611,9 @@ def create_returns_tear_sheet(returns, positions=None,
     plotting.plot_rolling_sharpe(
         returns, ax=ax_rolling_sharpe)
 
-    plotting.plot_rolling_fama_french(
-        returns, ax=ax_rolling_risk)
+    if not diable_fama_french:
+        plotting.plot_rolling_fama_french(
+            returns, ax=ax_rolling_risk)
 
     # Drawdowns
     plotting.plot_drawdown_periods(
